@@ -6,14 +6,25 @@
     <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
+    <form id="my-form">
+        <textarea id="message" placeholder="Message"></textarea>
+        <p>
+            <button type="submit">Send</button>
+        </p>
+    </form>
+    <div id="messages"></div>
     <script>
         var socket = io('http://localhost:8000');
-        socket.on('greeting-from-server', function(message){
-            document.body.appendChild(
-                document.createTextNode(message.greeting)
-            );
-            socket.emit('greeting-from-client',{
-                greeting: 'Hello Server'
+        localStorage.debug = '*';
+        socket.on('connect', function(message){
+            document.getElementById('my-form').addEventListener('submit', function (e) {
+                e.preventDefault();
+                socket.send(document.getElementById('message').value);
+            });
+            socket.on('message', function(message){
+            var messageNode = document.createTextNode(message), messageElement = document.createElement('p');
+            messageElement.appendChild(messageNode);
+            document.getElementById('messages').appendChild(messageElement);
             });
         });
     </script>

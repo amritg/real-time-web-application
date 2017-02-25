@@ -3,6 +3,7 @@ var http = require('http');
 var socketIO = require('socket.io');
 var fs = require('fs');
 var server, io;
+var sockets=[];
 
 var app = express();
 
@@ -15,10 +16,16 @@ server.listen(8000);
 
 io = socketIO(server);
 io.on('connection', function(socket){
-    socket.emit('greeting-from-server', {
-        greeting: 'Hello Client'
+    console.log('The socket connected');
+    sockets.push(socket);
+    
+    socket.on('message', function(message){
+        for(var i=0; i < sockets.length; i++){
+            sockets[i].send(message);
+        }
     });
-    socket.on('greeting-from-client', function(message){
-        console.log(message);
+
+    socket.on('disconnect', function(){
+        console.log('The socket disconnected');
     });
 });
